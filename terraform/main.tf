@@ -7,12 +7,11 @@ terraform {
     }
     backend "s3" {
         key  = "aws/ec2-deploy/terraform.tfstate"
-        region = eu-north-1
     }
 }
 
 provider "aws" {
-    region = var.region
+    region = eu-north-1
 
 }
 resource "aws_instance" "server"{
