@@ -15,9 +15,9 @@ provider "aws" {
 
 }
 resource "aws_instance" "server"{
-    ami = "ami-052efd3df9dad4825"
+    ami = "ami-0ae0a4f69bf1ea649"
     instance.type = "t2.micro"
-    key_name = aws_key_pair.depèloyer.key_name
+    key_name = aws_key_pair.deployer.key_name
     vpc_security_group_ids = [aws_security_group.maingroup.id]
     iam_instance_profile = aws_iam_instance_profile.ec2-profile.name 
     connection {
@@ -33,7 +33,7 @@ resource "aws_instance" "server"{
 }
 resource "aws_iam_instance_profile" "ec2-profile" {
     name = "ec2-profile"
-    role = "EC2-ECR-AUTH" #the name of the role you have to se t it personally in AWS
+    role = "EC2-ECR-AUTH" #the name of the role you have to set it personally in AWS
 }
 resource "aws_security_group" "maingroup" {
     egress = {
