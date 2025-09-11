@@ -32,7 +32,7 @@ jobs:
       - name: Terraform plan
         id: plan
         run: terraform plan \
-          -var="region=us-east-1" \
+          -var="region=eu-north-1" \
           -var="public_key=$PUBLIC_KEY" \
           -var="private_key=$AWS_SSH_PRIVATE_KEY" \
           -var="key_name=deployer_key" \
