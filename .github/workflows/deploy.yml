@@ -26,15 +26,15 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init -backend-config="bucket=$AWS_TF_STATE_BUCKET_NAME" -backend-config="region=$AWS_REGION" -backend-config="key=terraform.tfstate"
+        run: terraform init -backend-config="bucket=$AWS_TF_STATE_BUCKET_NAME" -backend-config="region=us-east-1"
         working-directory: ./terraform
 
       - name: Terraform plan
         id: plan
         run: terraform plan \
+          -var="region=us-east-1" \
           -var="public_key=$PUBLIC_KEY" \
           -var="private_key=$AWS_SSH_PRIVATE_KEY" \
-          -var="region=us-east-1" \
           -var="key_name=deployer_key" \
           -out=PLAN
         working-directory: ./terraform
