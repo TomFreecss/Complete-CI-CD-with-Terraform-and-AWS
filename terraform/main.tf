@@ -39,6 +39,7 @@ resource "aws_security_group" "maingroup" {
     egress = [
         {
             cidr_blocks = ["0.0.0.0/0"]
+            description= ""
             from_port = 0
             ipv6_cidr_blocks = []
             prefix_list_ids = []
@@ -51,7 +52,7 @@ resource "aws_security_group" "maingroup" {
 
     ingress = [
         {
-            cidr_blocks = ["0.0.0.0/0"]
+            cidr_blocks = ["0.0.0.0/0",]
             description = ""
             from_port = 22
             ipv6_cidr_blocks = []
@@ -62,7 +63,7 @@ resource "aws_security_group" "maingroup" {
             to_port = 22 #traffico ssh
         },
         {
-            cidr_blocks = ["0.0.0.0/0"]
+            cidr_blocks = ["0.0.0.0/0",]
             description = ""
             from_port = 80
             ipv6_cidr_blocks = []
