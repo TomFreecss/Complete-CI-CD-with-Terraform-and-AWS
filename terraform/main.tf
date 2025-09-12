@@ -14,23 +14,27 @@ provider "aws" {
     region = var.region
 
 }
-resource "aws_instance" "server"{
-    ami = "ami-0ae0a4f69bf1ea649"
-    instance_type = "t3.micro"
-    key_name = aws_key_pair.deployer.key_name
-    vpc_security_group_ids = [aws_security_group.maingroup.id]
-    iam_instance_profile = aws_iam_instance_profile.ec2-profile.name 
-    connection {
-        type = "ssh"
-        host = self.public_ip
-        user = "ubuntu"
-        private_key = var.private_key
-        timeout = "4m"
-    }
-    tags = {
-        "name" = "DeployVM"
-    }
+data "aws_ami" "amazon_linux" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
 }
+
+resource "aws_instance" "server" {
+  ami           = data.aws_ami.amazon_linux.id
+  instance_type = "t3.micro"
+  key_name      = aws_key_pair.deployer.id
+  vpc_security_group_ids = [aws_security_group.maingroup.id]
+
+  tags = {
+    Name = "TerraformServer"
+  }
+}
+
 resource "aws_iam_instance_profile" "ec2-profile" {
     name = "ec2-profile"
     role = "EC2-ECR-AUTH" # The IAM role "EC2-ECR-AUTH" must exist in AWS before applying this configuration
