@@ -8,7 +8,7 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
   AWS_TF_STATE_BUCKET_NAME: ${{ secrets.AWS_TF_STATE_BUCKET_NAME }}
-  AWS_SSH_PRIVATE_KEY: ${{ secrets.AWS_SSH_KEY_PRIVATE }}
+  AWS_SSH_KEY_PRIVATE: ${{ secrets.AWS_SSH_KEY_PRIVATE }}
   PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
   AWS_REGION: eu-north-1
 
@@ -35,7 +35,7 @@ jobs:
           terraform plan \
           -var="region=eu-north-1" \
           -var="public_key=$PUBLIC_KEY" \
-          -var="private_key=$AWS_SSH_PRIVATE_KEY" \
+          -var="private_key=$AWS_SSH_KEY_PRIVATE" \
           -var="key_name=deployer_key" \
           -out=PLAN
         working-directory: ./terraform
