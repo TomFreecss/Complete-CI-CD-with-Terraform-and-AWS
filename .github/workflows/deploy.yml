@@ -20,12 +20,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_wrapper: false
-
       - name: Terraform Init
         id: init
         run: terraform init -backend-config="bucket=$AWS_TF_STATE_BUCKET_NAME" -backend-config="region=eu-north-1"
@@ -56,9 +54,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3 
-      - name: Checkout  
-        uses: actions/checkout@v3
-      - name: Set IP env variable
+      - name: Set IP env variable 
         run: echo "SERVER_PUBLIC_IP=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }}" >> $GITHUB_ENV
       - name: Login to AWS ECR
         id: login-ecr
@@ -67,8 +63,7 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: example-node-app
-          IMAGE_TAG: ${{github.sha}}
-          AWS_DEFAULT_REGION: eu-north-1
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
@@ -77,7 +72,7 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: example-node-app
-          IMAGE_TAG: ${{github.sha}}
+          IMAGE_TAG: ${{ github.sha }}
         uses: appleboy/ssh-action@master
         with:
           host: ${{ env.SERVER_PUBLIC_IP }}
