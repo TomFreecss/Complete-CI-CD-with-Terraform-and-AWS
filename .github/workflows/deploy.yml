@@ -8,8 +8,8 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
   AWS_TF_STATE_BUCKET_NAME: ${{ secrets.AWS_TF_STATE_BUCKET_NAME }}
-  AWS_SSH_KEY_PRIVATE: ${{ secrets.AWS_SSH_KEY_PRIVATE }}
-  AWS_SSH_KEY_PUBLIC: ${{ secrets.AWS_SSH_KEY_PUBLIC }}
+  PRIVATE_SSH_KEY: ${{ secrets.AWS_SSH_KEY_PRIVATE }}
+  PUBLIC_SSH_KEY: ${{ secrets.AWS_SSH_KEY_PUBLIC }}
   AWS_REGION: eu-north-1
 
 jobs:
@@ -34,8 +34,8 @@ jobs:
         run: |-
           terraform plan \
           -var="region=eu-north-1" \
-          -var="public_key=$AWS_SSH_KEY_PUBLIC" \
-          -var="private_key=$AWS_SSH_KEY_PRIVATE" \
+          -var="public_key=$PUBLIC_SSH_KEY" \
+          -var="private_key=$PRIVATE_SSH_KEY" \
           -var="key_name=deployer_key" \
           -out=PLAN
         working-directory: ./terraform
@@ -79,8 +79,8 @@ jobs:
         with:
           host: ${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }}
           username: ubuntu
-          key: ${{ env.AWS_SSH_KEY_PRIVATE }} 
-          envs: AWS_SSH_KEY_PRIVATE,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION
+          key: ${{ env.PRIVATE_SSH_KEY }} 
+          envs: PRIVATE_SSH_KEY,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION
           script: |
               sudo apt update
               sudo apt install -y docker.io
