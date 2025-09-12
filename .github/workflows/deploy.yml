@@ -8,7 +8,7 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
   AWS_TF_STATE_BUCKET_NAME: ${{ secrets.AWS_TF_STATE_BUCKET_NAME }}
-  AWS_SSH_PRIVATE_KEY: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
+  AWS_SSH_KEY_PRIVATE: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
   PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
   AWS_REGION: eu-north-1
 
@@ -77,7 +77,7 @@ jobs:
         with:
           host: ${{ env.SERVER_PUBLIC_IP }}
           username: ubuntu
-          key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
+          key: ${{ secrets.AWS_SSH_KEY_PRIVATE }}
           script: |
               sudo apt update
               sudo apt install -y docker.io
