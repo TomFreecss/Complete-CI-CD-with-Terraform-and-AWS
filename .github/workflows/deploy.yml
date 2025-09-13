@@ -24,10 +24,10 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2 
         with:
-          terraform_wrapper: false
+          terraform_wrapper: false #install terraform in the runner
       - name: Terraform Init
         id: init
-        run: terraform init -backend-config="bucket=$AWS_TF_STATE_BUCKET_NAME" -backend-config="region=eu-north-1"
+        run: terraform init -backend-config="bucket=$AWS_TF_STATE_BUCKET_NAME" -backend-config="region=eu-north-1" #Use the S3 bucket to save the remote state
         working-directory: ./terraform
 
       - name: Terraform plan
@@ -39,7 +39,7 @@ jobs:
           -var="private_key=$PRIVATE_SSH_KEY" \
           -var="key_name=deployer_key" \
           -out=PLAN
-        working-directory: ./terraform
+        working-directory: ./terraform #Create an execution plan and save it in a file called PLAN
       - name: Terraform Apply
         id: apply
         run: terraform apply PLAN
@@ -47,24 +47,24 @@ jobs:
       - name: Set output
         id: set-ip
         run: |-
-          echo "::set-output name=instance_public_ip::$(terraform output instance_public_ip)"
+          echo "::set-output name=instance_public_ip::$(terraform output instance_public_ip)" #Set the output variable reading it from terraform output
         working-directory: ./terraform
   deploy-app:
     runs-on: ubuntu-latest
-    needs: deploy-infra
+    needs: deploy-infra #This job depends on the deploy-infra job to be completed
     steps:
       - name: Checkout
         uses: actions/checkout@v3 
       - name: Set IP env variable 
-        run: echo SERVER_PUBLIC_IP=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }} >> $GITHUB_ENV
+        run: echo SERVER_PUBLIC_IP=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }} >> $GITHUB_ENV #Set the SERVER_PUBLIC_IP env variable reading it from the output of the deploy-infra job
       - name: Login to AWS ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
       - name: Build, push docker image
         env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: example-node-app
-          IMAGE_TAG: ${{ github.sha }}
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }} #Set the env variables needed to build and push the docker image, the registry is read from the output of the login-ecr step
+          REPOSITORY: example-node-app #Name of the repository in ECR, must be the same that you set in terraform  or AWS console
+          IMAGE_TAG: ${{ github.sha }} #Use the commit SHA as image tag to have a unique tag for each build
         run: |-
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
@@ -75,25 +75,30 @@ jobs:
           REPOSITORY: example-node-app
           IMAGE_TAG: ${{ github.sha }}
           AWS_DEFAULT_REGION: eu-north-1
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@master #Use the appleboy/ssh-action to connect to the EC2 instance with SSH and run commands
         with:
           host: ${{ env.SERVER_PUBLIC_IP }}
-          username: ec2-user
+          username: ec2-user #Default user for Amazon Linux 2, need to be careful if you use a different AMI choose the right user
           key: ${{ env.PRIVATE_SSH_KEY }} 
           envs: PRIVATE_SSH_KEY,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION
           script: |-
-            # Update system and install dependencies
-            sudo yum update -y
-            sudo yum install -y docker
-            sudo systemctl start docker
-            sudo systemctl enable docker
-            sudo usermod -aG docker ec2-user
+            # Update system and install dependencies 
+            if ! command -v docker &> /dev/null; then
+              echo ">>> Installing Docker"
+              sudo yum update -y
+              sudo yum install -y docker unzip
+              sudo systemctl start docker
+              sudo systemctl enable docker
+              sudo usermod -aG docker ec2-user
+            fi
             
-            # Install AWS CLI v2
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            sudo yum install -y unzip
-            unzip awscliv2.zip
-            sudo ./aws/install --update
+            # Install AWS CLI v2 on the ec2 instance to run directly aws commands
+            if ! command -v aws &> /dev/null; then
+              echo ">>> Installing AWS CLI v2"
+              curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+              unzip -q awscliv2.zip
+              sudo ./aws/install --update
+            fi
             
             # Configure AWS credentials
             export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
