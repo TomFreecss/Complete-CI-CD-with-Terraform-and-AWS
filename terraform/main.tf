@@ -23,7 +23,7 @@ resource "aws_instance" "servernode"{
     connection {
         type = "ssh"
         host = self.public_ip
-        user = "ubuntu"
+        user = "ec2-user"
         private_key = var.private_key
         timeout = "4m"
     }
