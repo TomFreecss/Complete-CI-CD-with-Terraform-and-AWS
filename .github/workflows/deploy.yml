@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main  #Push to main branch
+      - optimized
       
 # Set the secrets as env
 env:
