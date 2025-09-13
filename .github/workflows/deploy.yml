@@ -16,7 +16,7 @@ env:
 jobs: 
   deploy-infra: #Deploy infrastructure, in this case EC2 istance
     runs-on: ubuntu-latest
-    steps:
+    outputs:
       SERVER_PUBLIC_IP: ${{ steps.set-ip.outputs.instance_public_ip }} #expose the output called SERVER_PUBLIC_IP reading it from set-ip
       - name: Checkout 
         uses: actions/checkout@v3 #Clone the repo in the runner
