@@ -1,4 +1,4 @@
-FROM    node:18-alpine #node > 16.9 is needed to connect because of (Object.hasOwn)
+FROM    node:18-alpine 
 WORKDIR usr/app
 COPY    package.json .
 RUN     npm install
